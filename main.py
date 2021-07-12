@@ -1,8 +1,9 @@
 import os
 from glob import glob
 import installSubmodules
+import storeNoUpdate
 
-STORES_PATH="/var/www/"
+STORES_PATH="/var/www/clientes"
 
 def getAllPaths():
     global STORES_PATH
@@ -22,17 +23,24 @@ def getOnlyMagentoPaths(storesPath):
 
 	return result
 
-def executeGM(allPaths):
-
-    for store in allPaths:
-        #os.system('./gm.sh')
-        print('---------------------------------',store, '----------------------------------')
-        print(installSubmodules.checkModulesStore(store))
-        os.chdir(store)
-        
+def notUpdate():
+    storeNotUpdate = []
+    listStore = storeNoUpdate.stores   
+    for store in listStore:
+        BlackList = storeNoUpdate.stores[store]['path']
+        storeNotUpdate.append(BlackList)
+    return storeNotUpdate
+                  
 def main():
     getPaths = getAllPaths()
     getMagentoPaths = getOnlyMagentoPaths(getPaths)
-    executeGM(getMagentoPaths)
-
+    noUpdate = notUpdate()
+    
+    for pathMagento in getMagentoPaths:
+        if pathMagento in noUpdate:
+            print(' "%s" não será atualizada! \n' %pathMagento)
+        else:
+            installSubmodules.executeAll(pathMagento)
+            
+    print("Finalizado!")
 main()

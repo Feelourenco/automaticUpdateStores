@@ -21,32 +21,55 @@ def checkModulesStore(pathStore):
         
         if isActive == '1':
             modulesEnables.append(moduleName)
+        
 
     listFile.close()
     return modulesEnables
 
-    #Module List
+#Modules List
 def listModules():
-    list = []
+    lista = []
     listModules = modules.modules
     for module in listModules:
-        list.append(module)
-    return list
+        lista.append(module)
+    return lista
 
 #Compare Lists
-def compareLists():
+def compareLists(pathStore):
     compareList = []
-    moduleStore = set(checkModulesStore('/var/www/curso'))
-    moduleList = set(listModules())
-    if moduleStore == moduleList:
-        print("Não necessita instalação de nenhum submodulo")
-    else:
-        print("Necessita instalação")
+    moduleStore = checkModulesStore(pathStore)
+    moduleList = listModules()
+    for modL in moduleList:
+        if modL not in moduleStore:
+            compareList.append(modL)
 
-def main():
-    #print(checkModulesStore())
-    compareLists()
+    return compareList
 
+def executeAll(pathStore):
+
+    listModules = compareLists(pathStore)
     
-
-main()
+    if listModules == []:
+        print('Não há novos modulos para serem instalados em "%s"' %pathStore)
+    else:
+        for module in listModules:
+            url = modules.modules[module]['url']
+            path = modules.modules[module]['path']
+            required = modules.modules[module]['required']
+            enable = modules.modules[module]['enable']
+            
+            if required == True:
+                print('----------Instalando modulo %s "em" %s ----------' %(module, pathStore))
+                os.chdir(pathStore)
+                #os.system('pwd')
+                os.system('git submodule add --force %s %s' %(url, path))
+                if enable == True:
+                    print('---------- Ativando o modulo %s "em" %s ----------' %(module, pathStore))
+                    os.system('php bin/magento module:enable %s' %module)
+            else:
+                continue
+            
+    os.chdir(pathStore)
+    #os.system('pwd')
+    print('---------- Rodando all em "%s" ----------' %pathStore)
+    #os.system('./all.sh') #Trocar para o ./gm.sh após os testes iniciais
