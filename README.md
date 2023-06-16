@@ -1,1 +1,1 @@
-Modulo para atualização em massa de lojas Magento 2.
+Script para atualização em massa de lojas Magento 2.
